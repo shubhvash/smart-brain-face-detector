@@ -1,4 +1,4 @@
-# Smart Brain
+# Smart Brain Face Detector
 
 Face-detection demo: paste an image URL and the app draws a box around the face.
 Face detection runs **in the browser** with [MediaPipe Face Detector](https://ai.google.dev/edge/mediapipe/solutions/vision/face_detector)
