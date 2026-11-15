@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
+import Particles from 'react-tsparticles';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Navigation from './components/Navigation/Navigation';
 import Signin from './components/Signin/Signin';
@@ -8,20 +7,19 @@ import Register from './components/Register/Register';
 import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
+import { detectFaces } from './faceDetector';
 import './App.css';
 
-//You must add your own API key here from Clarifai.
-const app = new Clarifai.App({
-  apiKey: '66994b69c682493ea722a1cc333225f5'
-});
-
 const particlesOptions = {
+  fullScreen: { enable: false },
   particles: {
+    links: { enable: true },
+    move: { enable: true },
     number: {
       value: 30,
       density: {
         enable: true,
-        value_area: 800
+        area: 800
       }
     }
   }
@@ -56,16 +54,15 @@ class App extends Component {
     }});
   }
 
-  calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+  calculateFaceLocation = (face) => {
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
     return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
+      leftCol: face.left * width,
+      topRow: face.top * height,
+      rightCol: width - (face.right * width),
+      bottomRow: height - (face.bottom * height)
     }
   }
 
@@ -78,23 +75,30 @@ class App extends Component {
   }
 
   onButtonSubmit = () => {
-    this.setState({imageUrl: this.state.input});
-    app.models
-      .predict(
-        Clarifai.FACE_DETECT_MODEL,
-        this.state.input)
-      .then(response => {
-        if (response) {
-          fetch('/api/users/image', {
-            method: 'put',
-          })
-          .then(response => response.json())
-          .then(res => {
-            this.setState(Object.assign(this.state.user, { entries: res.entries}))
-          })
-          .catch(err => {console.log(err)});
+    const { input } = this.state;
+    if (!input) {
+      return;
+    }
+    // Serve the image through our own origin so the browser can read its pixels.
+    const proxiedUrl = `/api/images/proxy?url=${encodeURIComponent(input)}`;
+    this.setState({ imageUrl: proxiedUrl, box: {} });
+  }
+
+  onImageLoad = (event) => {
+    detectFaces(event.target)
+      .then(faces => {
+        fetch('/api/users/image', {
+          method: 'put',
+        })
+        .then(response => response.json())
+        .then(res => {
+          this.setState(Object.assign(this.state.user, { entries: res.entries}))
+        })
+        .catch(err => {console.log(err)});
+
+        if (faces.length) {
+          this.displayFaceBox(this.calculateFaceLocation(faces[0]));
         }
-        this.displayFaceBox(this.calculateFaceLocation(response))
       })
       .catch(err => console.log(err));
   }
@@ -116,9 +120,7 @@ class App extends Component {
     const { isSignedIn, imageUrl, route, box } = this.state;
     return (
       <div className="App">
-         <Particles className='particles'
-          params={particlesOptions}
-        />
+        <Particles className='particles' options={particlesOptions} />
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
         { route === 'home'
           ? <div>
@@ -131,7 +133,7 @@ class App extends Component {
                 onInputChange={this.onInputChange}
                 onButtonSubmit={this.onButtonSubmit}
               />
-              <FaceRecognition box={box} imageUrl={imageUrl} />
+              <FaceRecognition box={box} imageUrl={imageUrl} onImageLoad={this.onImageLoad} />
             </div>
           : (
              route === 'signin' || route === 'signout'

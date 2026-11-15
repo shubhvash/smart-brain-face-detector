@@ -1,0 +1,21 @@
+# Render Blueprint for Smart Brain.
+# One Node web service: Express serves the API (/api) and the React build.
+# MongoDB is external (MongoDB Atlas) because Render has no managed MongoDB.
+services:
+  - type: web
+    name: smart-brain
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeployTrigger: commit
+    envVars:
+      # Atlas connection string, e.g.
+      # mongodb+srv://<user>:<password>@<cluster>.mongodb.net/smart-brain?retryWrites=true&w=majority
+      # Entered in the Render Dashboard when the Blueprint is created; never committed.
+      - key: MONGODB_URI
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true

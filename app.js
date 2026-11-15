@@ -1,3 +1,6 @@
+//Configure .env (load before anything reads process.env)
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 var genuuid = require('uuid').v4;
@@ -6,17 +9,18 @@ const MongoStore = require('connect-mongo');
 
 const app = express();
 
+// Render (and most PaaS) terminate TLS at a proxy in front of the app
+app.set('trust proxy', 1);
+
 const api = require('./server/api');
 const db = require('./server/db');
-
-//Configure .env
-require('dotenv').config();
 
 //Set port as process.env.PORT if it is present otherwise set it to 4000
 const port = process.env.PORT || 4000;
 
 //Initiate connection with database
 db.connect({
+    uri: process.env.MONGODB_URI,
     host: process.env.DB_HOST,
     username: process.env.DB_USER,
     password: process.env.DB_PASS,

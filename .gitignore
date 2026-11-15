@@ -22,3 +22,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# MediaPipe WASM runtime (copied from node_modules by scripts/copy-mediapipe-wasm.js)
+/public/mediapipe-wasm
