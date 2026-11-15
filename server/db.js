@@ -30,9 +30,10 @@ const connect = (dbConfig) => {
     const mongoUri = buildMongoUri(dbConfig);
 
     return mongoose
-        .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
+        .connect(mongoUri, { serverSelectionTimeoutMS: 15000 })
         .catch(err => {
-            console.error(`Error connecting to MongoDB: ${err.message}`);
+            // Log a single line; never log the connection string (it contains credentials).
+            console.error(`Error connecting to MongoDB: ${err.name}: ${err.message}`);
             throw err;
         });
 };

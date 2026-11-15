@@ -31,7 +31,7 @@ db.connect({
         genid() {
             return genuuid() // use UUIDs for session IDs
         },
-        store: new MongoStore({ client: db.getClient() }),
+        store: MongoStore.create({ client: db.getClient() }),
         secret: process.env.SESSION_SECRET,
         resave: true,
         saveUninitialized: false
@@ -49,4 +49,7 @@ db.connect({
     app.listen(port, () => {
         console.log(`Server listening at port: ${port}`);
     });
+}).catch(() => {
+    console.error('Startup aborted: could not connect to MongoDB. Check MONGODB_URI and the database network access list.');
+    process.exit(1);
 });

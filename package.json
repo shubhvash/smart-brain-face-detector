@@ -8,11 +8,11 @@
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
     "bcryptjs": "^2.4.3",
-    "connect-mongo": "^4.4.0",
+    "connect-mongo": "^5.1.0",
     "dotenv": "^16.6.1",
     "express": "^4.22.3",
     "express-session": "^1.17.1",
-    "mongoose": "^5.12.1",
+    "mongoose": "^8.24.9",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
@@ -53,9 +53,9 @@
   },
   "devDependencies": {
     "ajv": "^8.20.0",
+    "nodemon": "^2.0.7",
     "stylelint": "^13.12.0",
-    "stylelint-config-standard": "^21.0.0",
-    "nodemon": "^2.0.7"
+    "stylelint-config-standard": "^21.0.0"
   },
   "proxy": "http://localhost:4000"
 }
